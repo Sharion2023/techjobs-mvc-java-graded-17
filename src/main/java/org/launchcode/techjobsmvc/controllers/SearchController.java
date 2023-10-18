@@ -1,9 +1,15 @@
 package org.launchcode.techjobsmvc.controllers;
 
+import org.launchcode.techjobsmvc.models.Job;
+import org.launchcode.techjobsmvc.models.JobData;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
 
 import static org.launchcode.techjobsmvc.controllers.ListController.columnChoices;
 
@@ -22,6 +28,22 @@ public class SearchController {
     }
 
     // TODO #3 - Create a handler to process a search request and render the updated search view.
-
+    @PostMapping (value="/search/results")
+    public String displaySearchResults(Model model, @RequestParam String searchType, @RequestParam String searchName) {
+        ArrayList<Job> jobs;
+        //if search type is "all" or empty, use findAll() method
+        if (searchType.equals("all")) {
+            jobs = JobData.findAll();
+            model.addAttribute("searchType", "all");
+        } else {
+            jobs = JobData.findByColumnAndValue(searchType, searchName);
+            model.addAttribute("searchType", "${jobs.key}");
+            model.addAttribute("searchName", "${jobs.value}");
+        }
+        //otherwise send search info to findByColumnAndValue
+        //store either results in jobs ArrayList
+        model.addAttribute("columns", columnChoices);
+        return "search";
+    }
 }
 
